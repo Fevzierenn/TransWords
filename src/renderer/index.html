@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:">
+  <title>TransWords</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main>
+    <header>
+      <div><p class="eyebrow">ENGLISH ↔ TURKISH</p><h1>TransWords</h1></div>
+      <div class="header-actions">
+        <button id="settingsToggle" class="theme-toggle" type="button" aria-label="Open settings" title="Settings">⚙</button>
+        <button id="themeToggle" class="theme-toggle" type="button" aria-label="Switch to dark theme" title="Switch theme">
+          <span id="themeIcon" aria-hidden="true">☾</span>
+        </button>
+        <button id="historyToggle" class="ghost">History <span id="historyCount">0</span></button>
+      </div>
+    </header>
+
+    <section id="translatorView">
+      <label for="source">What would you like to translate?</label>
+      <div class="input-wrap">
+        <textarea id="source" rows="4" autofocus placeholder="Type or paste a word or sentence…"></textarea>
+        <button id="paste" class="icon-button" title="Paste from clipboard">Paste</button>
+      </div>
+      <div class="actions">
+        <span class="hint">Copy text, then press <kbd>Ctrl</kbd> + <kbd>T</kbd></span>
+        <button id="translate" class="primary">Translate</button>
+      </div>
+      <p id="status" role="status"></p>
+      <div id="loading" class="loading hidden" role="status" aria-live="polite">
+        <img id="loadingAnimation" src="../../media/basketball_player.gif" alt="Translating animation">
+        <div><strong>Translating</strong><span>Please wait a moment…</span></div>
+      </div>
+      <article id="result" class="result hidden">
+        <div class="result-head"><span id="provider"></span><div><button id="turengLink" class="tureng-link hidden">View on Tureng</button> <button id="copyResult" class="ghost">Copy</button></div></div>
+        <div id="translations"></div>
+      </article>
+    </section>
+
+    <section id="historyView" class="hidden">
+      <div class="section-head"><div><p class="eyebrow">SAVED LOCALLY</p><h2>Translation history</h2></div><button id="clearHistory" class="danger">Clear all</button></div>
+      <div id="historyList"></div>
+    </section>
+  </main>
+
+  <dialog id="settingsDialog">
+    <form id="settingsForm" method="dialog">
+      <div class="settings-head">
+        <div><p class="eyebrow">PERSONALIZE</p><h2>Settings</h2></div>
+        <button id="closeSettings" class="close-button" type="button" aria-label="Close settings">×</button>
+      </div>
+
+      <label class="setting-row" for="fontSelect"><span><strong>Application font</strong><small>Used throughout the input, output, and interface.</small></span>
+        <select id="fontSelect"><option value="default">Default</option><option value="sans">Sans serif</option><option value="arial">Arial</option></select>
+      </label>
+      <label class="setting-row" for="shortcutInput"><span><strong>Selection shortcut</strong><small>Click the field, then press your preferred combination.</small></span>
+        <input id="shortcutInput" class="shortcut-input" readonly value="Ctrl+T">
+      </label>
+
+      <div class="palette-head">
+        <strong>Theme colors</strong>
+        <div class="theme-tabs" role="tablist"><button type="button" class="theme-tab active" data-palette="light">Light</button><button type="button" class="theme-tab" data-palette="dark">Dark</button></div>
+      </div>
+      <div id="colorSettings" class="color-grid"></div>
+      <p id="settingsStatus" class="settings-status" role="status"></p>
+      <div class="settings-actions"><button id="resetSettings" type="button" class="ghost">Restore defaults</button><button id="saveSettings" type="submit" class="primary">Save settings</button></div>
+    </form>
+  </dialog>
+  <script src="app.js"></script>
+</body>
+</html>

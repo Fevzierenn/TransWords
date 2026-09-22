@@ -1,0 +1,17 @@
+node_modules/
+dist/
+build/
+*.log
+.env
+scripts/tureng-smoke-result.json
+scripts/ui-smoke.png
+scripts/ui-smoke-light.png
+scripts/ui-smoke-dark.png
+scripts/ui-smoke-result.json
+scripts/settings-smoke.png
+scripts/loading-smoke.png
+scripts/sentence-smoke-result.json
+
+
+/AGENTS.md
+/PROJECT_STATUS.md

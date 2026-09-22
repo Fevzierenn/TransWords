@@ -1,0 +1,22 @@
+{
+  "name": "transwords",
+  "version": "0.1.0",
+  "description": "Clipboard-first English–Turkish desktop translator",
+  "main": "src/main.js",
+  "type": "commonjs",
+  "scripts": {
+    "dev": "electron .",
+    "start": "electron .",
+    "build:win": "node scripts/create-app-icon.js && node scripts/package-win.js",
+    "test": "node --test",
+    "lint": "node --check src/main.js && node --check src/preload.js && node --check src/services/translator.js && node --check src/services/tureng-browser.js && node --check src/services/selection-capture.js && node --check src/services/settings.js && node --check src/renderer/app.js && node --check scripts/create-app-icon.js && node --check scripts/package-win.js"
+  },
+  "devDependencies": {
+    "@electron/packager": "^20.3.0",
+    "electron": "^38.1.2",
+    "jimp": "^0.22.10"
+  },
+  "dependencies": {
+    "@nut-tree-fork/nut-js": "^4.2.6"
+  }
+}
