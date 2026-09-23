@@ -97,3 +97,11 @@ test("merges settings while rejecting invalid colors and fonts", () => {
   assert.equal(settings.themes.light.inputBackground, DEFAULT_SETTINGS.themes.light.inputBackground);
   assert.equal(settings.themes.light.outputBackground, "#123456");
 });
+
+test("restores the owner's chosen default palette", () => {
+  const defaults = mergeSettings();
+  assert.equal(defaults.themes.light.appBackground, "#f4f1e8");
+  assert.equal(defaults.themes.light.buttonBackground, "#8c4114");
+  assert.equal(defaults.themes.dark.appBackground, "#151515");
+  assert.equal(defaults.themes.dark.buttonBackground, "#d97757");
+});

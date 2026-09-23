@@ -5,26 +5,26 @@ const DEFAULT_SETTINGS = Object.freeze({
     light: {
       appBackground: "#f4f1e8",
       appText: "#17241f",
-      inputBackground: "#fffefa",
-      inputText: "#17241f",
-      outputBackground: "#29364a",
-      outputText: "#f7f9fc",
-      buttonBackground: "#17633d",
+      inputBackground: "#efeeeb",
+      inputText: "#000000",
+      outputBackground: "#efeeeb",
+      outputText: "#000000",
+      buttonBackground: "#8c4114",
       buttonText: "#ffffff",
-      secondaryButtonBackground: "#e5eee5",
-      secondaryButtonText: "#315c45"
+      secondaryButtonBackground: "#8c4114",
+      secondaryButtonText: "#ffffff"
     },
     dark: {
-      appBackground: "#101713",
+      appBackground: "#151515",
       appText: "#edf4ed",
-      inputBackground: "#19221d",
+      inputBackground: "#20201f",
       inputText: "#edf4ed",
-      outputBackground: "#1c2635",
+      outputBackground: "#20201f",
       outputText: "#f3f6fb",
-      buttonBackground: "#48a875",
-      buttonText: "#ffffff",
-      secondaryButtonBackground: "#283a30",
-      secondaryButtonText: "#c0dfca"
+      buttonBackground: "#d97757",
+      buttonText: "#000000",
+      secondaryButtonBackground: "#d97757",
+      secondaryButtonText: "#000000"
     }
   }
 });
