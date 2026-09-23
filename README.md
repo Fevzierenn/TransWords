@@ -7,7 +7,8 @@ Highlight any text in any application and press **`Ctrl+T`** — TransWords copi
 - **Single words** are looked up in the [Tureng](https://tureng.com) dictionary (through a background browser, so Cloudflare does not block it) and show multiple EN↔TR pairs.
 - **Sentences and phrases** are translated with Google Translate.
 - If Tureng cannot be reached, the app falls back to Google and still gives you a direct “View on Tureng” link.
-- Translations are saved to a local **history** (last 500 entries) you can reopen at any time.
+- Translations are saved to a local **history** (last 500 entries) you can search and reopen at any time.
+- **Flashcards** turn the words you have searched into practice cards, with spaced repetition so you remember them.
 
 No account, no API key, no configuration needed — just download the `.exe` and translate.
 
@@ -18,6 +19,8 @@ No account, no API key, no configuration needed — just download the `.exe` and
 | Who you are | What to get |
 |---|---|
 | **Regular user** | **[⬇️ Download TransWords-win32-x64.zip](https://github.com/Fevzierenn/TransWords/releases/latest)** — download, extract, run |
+
+> **Note:** The current release ZIP was built before the redesigned interface and Flashcards. A new release will be published when these features are final. Until then, run from source (below) to try them.
 | **Developer** | Clone the repo, then `npm install` + `npm run dev` |
 
 ### ✅ Recommended: download the app (ZIP)
@@ -73,7 +76,8 @@ The packaged app is written to `dist\TransWords-win32-x64\` (with `TransWords.ex
 | Open the dictionary page | Click **View on Tureng** (word results) |
 | Switch light/dark theme | Moon/sun button in the top-right — remembered across restarts |
 | View past translations | **History** tab: search, click an entry to reopen it, delete single entries (trash icon), or **Clear all**. `Esc` returns to Translate |
-| Practice searched words | **Flashcards** tab: pick English → Turkish, Turkish → English, or Mixed, type the meaning, press `Enter`. Missed words come back later ([design](docs/flashcards.md)) |
+| Practice searched words | **Flashcards** tab: pick English → Turkish, Turkish → English, or Mixed, type the meaning, press `Enter`. Missed words come back at the end of the session and on later days ([design](docs/flashcards.md)) |
+| Answer marked wrong but it was right | Click **I was right**: it counts as correct and is accepted for that card from now on |
 | Customize the app | **Settings** (sliders icon): font, colors, and a new global shortcut |
 
 ### Settings
@@ -83,9 +87,21 @@ Open **Settings** to:
 - Record a **new global shortcut** (must include Ctrl/Alt/Shift + a letter, number, or F-key).
 - Pick a **font**: Default, Sans Serif, or Arial.
 - Customize **10 colors per theme** (light and dark separately): app background/text, input, output, primary buttons, secondary buttons — with live preview.
+- Turn **Flashcards** on or off (off hides the tab; nothing else changes).
+- Turn **Check flashcard answers online** on or off (see below).
 - **Restore defaults** at any time.
 
-Settings and history persist across restarts.
+Settings, history, and flashcard progress persist across restarts.
+
+### How flashcard answers are checked
+
+Answers are forgiving, so a correct word typed a little differently still counts:
+
+1. Capital letters, punctuation, and a leading "to"/"the" are ignored; any listed meaning is accepted.
+2. Turkish letters are optional: `ask` counts for `aşk`.
+3. Small typos count as **Almost**, and so do other forms of the same word: `dene` for `deneme`, `kitaplar` for `kitap`, `trying` for `try`.
+4. Answers you confirmed with **I was right** are accepted from then on.
+5. If an answer still looks wrong and **Check flashcard answers online** is on, it is translated back with Google Translate; if it means the prompted word, it counts.
 
 ---
 
@@ -97,10 +113,11 @@ Everything stays **on your computer** — nothing is synced to a server:
 |---|---|
 | Translation history | `%APPDATA%\transwords\history.json` (max 500 entries) |
 | Settings | `%APPDATA%\transwords\settings.json` |
+| Flashcard progress and your accepted answers | `%APPDATA%\transwords\flashcards.json` |
 | Theme choice | Inside the app (localStorage) |
 | Tureng session cookies | Electron profile data (used to pass Cloudflare) |
 
-To reset everything, delete those two JSON files (or use **Clear all** / **Restore defaults** in the app).
+To reset everything, delete those JSON files (or use **Clear all** / **Restore defaults** in the app).
 
 ---
 
@@ -121,7 +138,7 @@ npm.cmd run build:win # package Windows x64 build + zip into dist\
 src/
   main.js                 Electron main process (window, IPC, global shortcut, persistence)
   preload.js              Secure contextBridge API exposed to the UI
-  renderer/               UI: index.html, styles.css, app.js, format.js (pure display helpers)
+  renderer/               UI: index.html, styles.css, app.js, flashcards.js, format.js (pure display helpers)
   services/
     translator.js         Word vs. sentence routing, Google Translate, Tureng HTML parsing
     tureng-browser.js     Hidden-browser Tureng scraper (Cloudflare-friendly)
@@ -131,6 +148,7 @@ src/
     flashcards.js         Flashcard cards, answer checking, spaced repetition
     flashcards-ipc.js     Flashcards IPC handlers and progress storage
     answer-validator.js   Optional external answer validator (off by default)
+docs/                     Feature design notes (flashcards.md)
 scripts/                  Icon generation, Windows packaging, smoke tests
 test/                     Unit tests (node:test)
 media/                    Logo, icons, loading animation
@@ -150,6 +168,7 @@ npx.cmd electron scripts\ui-smoke.js    # UI screenshots of every state -> scrip
 ## Good to know
 
 - **No API keys or environment variables.** Translation uses free, unofficial endpoints (`translate.googleapis.com` and scraped `tureng.com` pages). If either service changes its format, translation may break — word lookup already falls back to Google automatically.
+- **Online answer checks send your flashcard answer to Google Translate.** Turn off *Check flashcard answers online* in Settings to keep flashcards fully offline.
 - **`Ctrl+T` briefly steals focus**, because it simulates a copy command to capture your selection. If the shortcut conflicts with another app, change it in Settings (the app warns you if registration fails).
 - **GPU acceleration is disabled** on purpose for Windows stability.
 - This project targets **Windows x64**; `npm run dev` may work on macOS/Linux, but only the Windows build script is provided.
