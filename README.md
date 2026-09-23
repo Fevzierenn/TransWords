@@ -67,12 +67,13 @@ The packaged app is written to `dist\TransWords-win32-x64\` (with `TransWords.ex
 | Translate typed/pasted text | Type in the box, press **`Enter`** or click **Translate** |
 | Insert a newline | **`Shift+Enter`** |
 | Translate selected text from any app | Select text anywhere → press **`Ctrl+T`** (configurable) |
-| Paste from clipboard | Click **Paste** |
-| Copy the result | Click **Copy** |
+| Paste from clipboard and translate | Click **Paste** |
+| Clear the input | Click **×** in the text pane |
+| Copy the result | Click **Copy**, or the copy icon on a single dictionary row |
 | Open the dictionary page | Click **View on Tureng** (word results) |
 | Switch light/dark theme | Moon/sun button in the top-right — remembered across restarts |
-| View past translations | **History** button; click a card to reload it, or **Clear all** |
-| Customize the app | **Settings** (⚙): fonts, colors, and a new global shortcut |
+| View past translations | **History** tab: search, click an entry to reopen it, delete single entries (trash icon), or **Clear all**. `Esc` returns to Translate |
+| Customize the app | **Settings** (sliders icon): font, colors, and a new global shortcut |
 
 ### Settings
 
@@ -108,7 +109,7 @@ To reset everything, delete those two JSON files (or use **Clear all** / **Resto
 npm.cmd install       # install dependencies
 npm.cmd run dev       # start the app in development mode
 npm.cmd start         # same as dev
-npm.cmd test          # run unit tests (node --test, 9 tests)
+npm.cmd test          # run unit tests (node --test)
 npm.cmd run lint      # syntax-check all source files
 npm.cmd run build:win # package Windows x64 build + zip into dist\
 ```
@@ -119,12 +120,13 @@ npm.cmd run build:win # package Windows x64 build + zip into dist\
 src/
   main.js                 Electron main process (window, IPC, global shortcut, persistence)
   preload.js              Secure contextBridge API exposed to the UI
-  renderer/               UI: index.html, app.js, styles.css
+  renderer/               UI: index.html, styles.css, app.js, format.js (pure display helpers)
   services/
     translator.js         Word vs. sentence routing, Google Translate, Tureng HTML parsing
     tureng-browser.js     Hidden-browser Tureng scraper (Cloudflare-friendly)
     selection-capture.js  Ctrl+T selection copy flow (nut-js)
     settings.js           Settings defaults, validation, shortcut normalization
+    history.js            History add/dedupe/cap and delete helpers
 scripts/                  Icon generation, Windows packaging, smoke tests
 test/                     Unit tests (node:test)
 media/                    Logo, icons, loading animation
@@ -136,7 +138,7 @@ dist/                     Packaged app output + release zip (gitignored)
 ```powershell
 node scripts\sentence-smoke.js          # Google sentence route
 node scripts\tureng-smoke.js kelime     # Tureng word route
-npx.cmd electron scripts\ui-smoke.js    # UI screenshots (light/dark/settings/loading)
+npx.cmd electron scripts\ui-smoke.js    # UI screenshots of every state -> scripts\ui-smoke-output\ (no network)
 ```
 
 ---
