@@ -73,6 +73,7 @@ The packaged app is written to `dist\TransWords-win32-x64\` (with `TransWords.ex
 | Open the dictionary page | Click **View on Tureng** (word results) |
 | Switch light/dark theme | Moon/sun button in the top-right — remembered across restarts |
 | View past translations | **History** tab: search, click an entry to reopen it, delete single entries (trash icon), or **Clear all**. `Esc` returns to Translate |
+| Practice searched words | **Flashcards** tab: pick English → Turkish, Turkish → English, or Mixed, type the meaning, press `Enter`. Missed words come back later ([design](docs/flashcards.md)) |
 | Customize the app | **Settings** (sliders icon): font, colors, and a new global shortcut |
 
 ### Settings
@@ -127,6 +128,9 @@ src/
     selection-capture.js  Ctrl+T selection copy flow (nut-js)
     settings.js           Settings defaults, validation, shortcut normalization
     history.js            History add/dedupe/cap and delete helpers
+    flashcards.js         Flashcard cards, answer checking, spaced repetition
+    flashcards-ipc.js     Flashcards IPC handlers and progress storage
+    answer-validator.js   Optional external answer validator (off by default)
 scripts/                  Icon generation, Windows packaging, smoke tests
 test/                     Unit tests (node:test)
 media/                    Logo, icons, loading animation
