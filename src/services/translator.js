@@ -90,6 +90,30 @@ async function translateSentence(text, fetchFn = fetch) {
   return { provider: "Google Translate", results: [first.translated] };
 }
 
+// Direct translation with explicit languages; used to back-translate flashcard answers.
+async function translateText(text, { source, target }, fetchFn = fetch, { timeoutMs = 4000 } = {}) {
+  const clean = String(text || "").trim();
+  if (!clean) throw new Error("Nothing to translate");
+  const url = new URL("https://translate.googleapis.com/translate_a/single");
+  url.searchParams.set("client", "gtx");
+  url.searchParams.set("sl", source);
+  url.searchParams.set("tl", target);
+  url.searchParams.set("dt", "t");
+  url.searchParams.set("q", clean);
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const response = await fetchFn(url, { signal: controller.signal });
+    if (!response.ok) throw new Error(`Translation request failed (${response.status})`);
+    const payload = await response.json();
+    const translated = payload?.[0]?.map((segment) => segment?.[0] || "").join("").trim();
+    if (!translated) throw new Error("No translation was returned");
+    return translated;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 async function translate(text, fetchFn = fetch) {
   const clean = String(text || "").trim();
   if (!clean) throw new Error("Enter or copy text to translate");
@@ -98,4 +122,4 @@ async function translate(text, fetchFn = fetch) {
     : translateWord(clean, fetchFn);
 }
 
-module.exports = { guessSourceLanguage, parseTureng, translate, translateSentence, translateWord };
+module.exports = { guessSourceLanguage, parseTureng, translate, translateSentence, translateText, translateWord };

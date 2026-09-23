@@ -26,12 +26,19 @@ const DEFAULT_SETTINGS = Object.freeze({
       secondaryButtonBackground: "#d97757",
       secondaryButtonText: "#000000"
     }
+  },
+  flashcards: {
+    enabled: true,
+    sessionSize: 10,
+    backTranslation: true,
+    remoteValidation: { enabled: false, endpoint: "", apiKeyEnv: "TRANSWORDS_VALIDATOR_KEY" }
   }
 });
 
 const COLOR_PATTERN = /^#[0-9a-f]{6}$/i;
 const VALID_FONTS = new Set(["default", "sans", "arial"]);
 const VALID_MODIFIERS = new Set(["Control", "Alt", "Shift"]);
+const ENV_NAME_PATTERN = /^[A-Z_][A-Z0-9_]*$/;
 
 function normalizeShortcut(value) {
   const parts = String(value || "").split("+").map((part) => part.trim()).filter(Boolean);
@@ -58,6 +65,22 @@ function safeColor(value, fallback) {
   return COLOR_PATTERN.test(String(value || "")) ? value.toLowerCase() : fallback;
 }
 
+function mergeFlashcards(value = {}) {
+  const defaults = DEFAULT_SETTINGS.flashcards;
+  const remote = value.remoteValidation || {};
+  const size = Number(value.sessionSize);
+  return {
+    enabled: typeof value.enabled === "boolean" ? value.enabled : defaults.enabled,
+    sessionSize: Number.isInteger(size) ? Math.min(30, Math.max(5, size)) : defaults.sessionSize,
+    backTranslation: typeof value.backTranslation === "boolean" ? value.backTranslation : defaults.backTranslation,
+    remoteValidation: {
+      enabled: typeof remote.enabled === "boolean" ? remote.enabled : false,
+      endpoint: typeof remote.endpoint === "string" && remote.endpoint.startsWith("https://") ? remote.endpoint : "",
+      apiKeyEnv: ENV_NAME_PATTERN.test(String(remote.apiKeyEnv || "")) ? remote.apiKeyEnv : defaults.remoteValidation.apiKeyEnv
+    }
+  };
+}
+
 function mergeSettings(value = {}) {
   const themes = {};
   for (const theme of ["light", "dark"]) {
@@ -71,7 +94,8 @@ function mergeSettings(value = {}) {
   return {
     shortcut,
     font: VALID_FONTS.has(value.font) ? value.font : DEFAULT_SETTINGS.font,
-    themes
+    themes,
+    flashcards: mergeFlashcards(value.flashcards)
   };
 }
 

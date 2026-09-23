@@ -1,6 +1,6 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
-const { guessSourceLanguage, parseTureng, translate } = require("../src/services/translator");
+const { guessSourceLanguage, parseTureng, translate, translateText } = require("../src/services/translator");
 const { captureSelectedText } = require("../src/services/selection-capture");
 const { DEFAULT_SETTINGS, mergeSettings, normalizeShortcut } = require("../src/services/settings");
 
@@ -104,4 +104,49 @@ test("restores the owner's chosen default palette", () => {
   assert.equal(defaults.themes.light.buttonBackground, "#8c4114");
   assert.equal(defaults.themes.dark.appBackground, "#151515");
   assert.equal(defaults.themes.dark.buttonBackground, "#d97757");
+});
+
+test("validates flashcard settings and keeps safe defaults", () => {
+  const settings = mergeSettings({
+    flashcards: { sessionSize: 99, remoteValidation: { enabled: true, endpoint: "http://example.test", apiKeyEnv: "bad-name" } }
+  });
+  assert.equal(settings.flashcards.enabled, true);
+  assert.equal(settings.flashcards.sessionSize, 30);
+  assert.equal(settings.flashcards.remoteValidation.enabled, true);
+  assert.equal(settings.flashcards.remoteValidation.endpoint, "");
+  assert.equal(settings.flashcards.remoteValidation.apiKeyEnv, "TRANSWORDS_VALIDATOR_KEY");
+  assert.equal(mergeSettings({ flashcards: { sessionSize: 1 } }).flashcards.sessionSize, 5);
+});
+
+test("back-translates text with explicit source and target languages", async () => {
+  let requested;
+  const fakeFetch = async (url) => {
+    requested = url;
+    return { ok: true, json: async () => [[["try", "dene"]], null, "tr"] };
+  };
+  assert.equal(await translateText(" dene ", { source: "tr", target: "en" }, fakeFetch), "try");
+  assert.equal(requested.searchParams.get("sl"), "tr");
+  assert.equal(requested.searchParams.get("tl"), "en");
+  assert.equal(requested.searchParams.get("q"), "dene");
+});
+
+test("rejects failed or empty back-translations", async () => {
+  const failing = async () => ({ ok: false, status: 503 });
+  await assert.rejects(translateText("dene", { source: "tr", target: "en" }, failing), /503/);
+  const empty = async () => ({ ok: true, json: async () => [[["", "dene"]]] });
+  await assert.rejects(translateText("dene", { source: "tr", target: "en" }, empty), /No translation/);
+  await assert.rejects(translateText("  ", { source: "tr", target: "en" }, empty), /Nothing to translate/);
+});
+
+test("aborts a back-translation that takes too long", async () => {
+  const hanging = (_url, options) => new Promise((_resolve, reject) => {
+    options.signal.addEventListener("abort", () => reject(new Error("aborted")));
+  });
+  await assert.rejects(translateText("dene", { source: "tr", target: "en" }, hanging, { timeoutMs: 10 }), /aborted/);
+});
+
+test("keeps the flashcard back-translation choice and defaults it on", () => {
+  assert.equal(mergeSettings({ flashcards: { backTranslation: false } }).flashcards.backTranslation, false);
+  assert.equal(mergeSettings({ flashcards: { backTranslation: "no" } }).flashcards.backTranslation, true);
+  assert.equal(mergeSettings().flashcards.backTranslation, true);
 });
