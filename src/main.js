@@ -7,6 +7,7 @@ const { translateWordInBrowser } = require("./services/tureng-browser");
 const { captureSelectedText } = require("./services/selection-capture");
 const { DEFAULT_SETTINGS, mergeSettings, normalizeShortcut } = require("./services/settings");
 const { HISTORY_LIMIT, addToHistory, removeFromHistory } = require("./services/history");
+const { registerFlashcards } = require("./services/flashcards-ipc");
 
 // Some Windows environments cannot start Electron's GPU child process. Use
 // Chromium's software rendering so the desktop app can start reliably.
@@ -148,6 +149,13 @@ ipcMain.handle("clipboard:write", (_event, text) => clipboard.writeText(String(t
 ipcMain.handle("external:open", (_event, url) => {
   if (!String(url).startsWith("https://tureng.com/")) throw new Error("Unsupported link");
   return shell.openExternal(url);
+});
+registerFlashcards({
+  ipcMain,
+  readHistory,
+  dataDir: () => app.getPath("userData"),
+  getSettings: () => settings,
+  fetchFn: (...args) => net.fetch(...args)
 });
 ipcMain.handle("settings:get", () => settings);
 ipcMain.handle("settings:save", async (_event, value) => {
