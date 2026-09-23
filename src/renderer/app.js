@@ -100,17 +100,21 @@ applyTheme(savedTheme || (matchMedia("(prefers-color-scheme: dark)").matches ? "
 
 // ---- Views ----
 
+function currentView() {
+  return document.querySelector(".tab.active")?.dataset.view || "translator";
+}
+
+// Views are <section id="{name}View">; other scripts (flashcards.js) listen for "transwords:view".
 function showView(view) {
-  const history = view === "history";
-  $("#translatorView").classList.toggle("hidden", history);
-  $("#historyView").classList.toggle("hidden", !history);
   document.querySelectorAll(".tab").forEach((tab) => {
     const active = tab.dataset.view === view;
     tab.classList.toggle("active", active);
     tab.setAttribute("aria-selected", String(active));
+    $(`#${tab.dataset.view}View`)?.classList.toggle("hidden", !active);
   });
-  if (history) historySearch.focus();
-  else source.focus();
+  if (view === "history") historySearch.focus();
+  if (view === "translator") source.focus();
+  document.dispatchEvent(new CustomEvent("transwords:view", { detail: { view } }));
 }
 
 function showTranslator() {
@@ -326,6 +330,8 @@ function openSettings() {
   paletteTheme = document.documentElement.dataset.theme;
   fontSelect.value = settingsDraft.font;
   shortcutInput.value = displayShortcut(settingsDraft.shortcut);
+  $("#flashcardsEnabled").checked = settingsDraft.flashcards?.enabled !== false;
+  $("#backTranslation").checked = settingsDraft.flashcards?.backTranslation !== false;
   setSettingsStatus("");
   renderColorSettings();
   settingsDialog.showModal();
@@ -340,6 +346,9 @@ function applySettings(settings) {
   appSettings = settings;
   applyAppearance(appSettings);
   renderKeys($("#shortcutTip"), appSettings.shortcut);
+  const flashcardsEnabled = appSettings.flashcards?.enabled !== false;
+  $("#flashcardsTab").classList.toggle("hidden", !flashcardsEnabled);
+  if (!flashcardsEnabled && currentView() === "flashcards") showTranslator();
 }
 
 function shortcutFromEvent(event) {
@@ -382,7 +391,7 @@ $("#turengLink").addEventListener("click", (event) => window.transwords.openExte
 document.querySelectorAll(".tab").forEach((tab) => tab.addEventListener("click", () => showView(tab.dataset.view)));
 historySearch.addEventListener("input", renderHistory);
 document.addEventListener("keydown", (event) => {
-  if (event.key === "Escape" && !$("#historyView").classList.contains("hidden") && !document.querySelector("dialog[open]")) {
+  if (event.key === "Escape" && currentView() !== "translator" && !document.querySelector("dialog[open]")) {
     showTranslator();
   }
 });
@@ -410,6 +419,12 @@ document.querySelectorAll(".theme-tab").forEach((tab) => tab.addEventListener("c
 fontSelect.addEventListener("change", () => {
   settingsDraft.font = fontSelect.value;
   applyAppearance(settingsDraft);
+});
+$("#flashcardsEnabled").addEventListener("change", (event) => {
+  settingsDraft.flashcards = { ...settingsDraft.flashcards, enabled: event.target.checked };
+});
+$("#backTranslation").addEventListener("change", (event) => {
+  settingsDraft.flashcards = { ...settingsDraft.flashcards, backTranslation: event.target.checked };
 });
 shortcutInput.addEventListener("keydown", (event) => {
   if (event.key === "Tab") return;
@@ -443,6 +458,8 @@ $("#resetSettings").addEventListener("click", async () => {
     settingsDraft = structuredClone(appSettings);
     fontSelect.value = appSettings.font;
     shortcutInput.value = displayShortcut(appSettings.shortcut);
+    $("#flashcardsEnabled").checked = appSettings.flashcards?.enabled !== false;
+    $("#backTranslation").checked = appSettings.flashcards?.backTranslation !== false;
     renderColorSettings();
     setSettingsStatus("Defaults restored.", { ok: true });
   } catch (error) {

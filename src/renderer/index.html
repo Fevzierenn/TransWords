@@ -22,6 +22,8 @@
     <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></symbol>
     <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></symbol>
     <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></symbol>
+    <symbol id="i-cards" viewBox="0 0 24 24"><rect x="3" y="7" width="13" height="14" rx="2"/><path d="M8 3h10a3 3 0 0 1 3 3v11"/></symbol>
+    <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20 11a8 8 0 0 0-14.8-4M4 4v4h4M4 13a8 8 0 0 0 14.8 4M20 20v-4h-4"/></symbol>
     <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
   </svg>
 
@@ -37,6 +39,9 @@
         </button>
         <button id="historyToggle" class="tab" type="button" role="tab" aria-selected="false" data-view="history">
           <svg class="icon"><use href="#i-history"/></svg>History<span id="historyCount" class="count">0</span>
+        </button>
+        <button id="flashcardsTab" class="tab" type="button" role="tab" aria-selected="false" data-view="flashcards">
+          <svg class="icon"><use href="#i-cards"/></svg>Flashcards
         </button>
       </nav>
       <div class="toolbar">
@@ -127,6 +132,49 @@
         </div>
         <ul id="historyList" class="history-list"></ul>
       </section>
+
+      <section id="flashcardsView" class="view flashcards-view hidden">
+        <div class="fc-head">
+          <div id="fcModes" class="segmented" role="radiogroup" aria-label="Direction">
+            <button type="button" class="theme-tab" data-mode="en-tr">English → Turkish</button>
+            <button type="button" class="theme-tab" data-mode="tr-en">Turkish → English</button>
+            <button type="button" class="theme-tab active" data-mode="mixed">Mixed</button>
+          </div>
+          <span id="fcCounter" class="muted"></span>
+        </div>
+        <div class="fc-progress" aria-hidden="true"><span id="fcProgressBar"></span></div>
+
+        <div id="fcCard" class="fc-card hidden">
+          <span id="fcDirection" class="chip accent"></span>
+          <p id="fcPrompt" class="fc-prompt"></p>
+          <form id="fcForm" class="fc-form" autocomplete="off">
+            <input id="fcAnswer" class="fc-input" type="text" spellcheck="false" aria-label="Your answer">
+            <div id="fcFeedback" class="fc-feedback hidden" role="status">
+              <svg class="icon"><use id="fcFeedbackIcon" href="#i-check"/></svg>
+              <div><strong id="fcFeedbackTitle"></strong><span id="fcFeedbackText"></span></div>
+            </div>
+            <div class="fc-actions">
+              <button id="fcReveal" type="button" class="btn link">I don't know</button>
+              <button id="fcOverride" type="button" class="btn link hidden" title="Count this answer as correct and accept it from now on">I was right</button>
+              <button id="fcSubmit" type="submit" class="btn primary">Check</button>
+            </div>
+          </form>
+        </div>
+
+        <div id="fcEmpty" class="state hidden">
+          <svg class="state-icon"><use href="#i-cards"/></svg>
+          <strong id="fcEmptyTitle">No words to practice yet</strong>
+          <span id="fcEmptyText">Translate a few single words and they will turn into flashcards here.</span>
+          <button id="fcPracticeAnyway" type="button" class="btn secondary hidden">Practice anyway</button>
+        </div>
+
+        <div id="fcDone" class="state hidden">
+          <svg class="state-icon"><use href="#i-check"/></svg>
+          <strong id="fcDoneTitle"></strong>
+          <span id="fcDoneText"></span>
+          <button id="fcRestart" type="button" class="btn primary"><svg class="icon"><use href="#i-refresh"/></svg>Practice again</button>
+        </div>
+      </section>
     </main>
   </div>
 
@@ -163,6 +211,14 @@
             <span><strong>Font</strong><small>Used for the whole interface.</small></span>
             <select id="fontSelect"><option value="default">Default</option><option value="sans">Sans serif</option><option value="arial">Arial</option></select>
           </label>
+          <label class="setting-row" for="flashcardsEnabled">
+            <span><strong>Flashcards</strong><small>Practice the words you have searched. Turn off to hide the tab.</small></span>
+            <input id="flashcardsEnabled" class="switch" type="checkbox" role="switch">
+          </label>
+          <label class="setting-row" for="backTranslation">
+            <span><strong>Check flashcard answers online</strong><small>When an answer looks wrong, translate it back to see if it still means the word.</small></span>
+            <input id="backTranslation" class="switch" type="checkbox" role="switch">
+          </label>
         </div>
 
         <div class="palette-head">
@@ -182,5 +238,6 @@
   </dialog>
   <script src="format.js"></script>
   <script src="app.js"></script>
+  <script src="flashcards.js"></script>
 </body>
 </html>
