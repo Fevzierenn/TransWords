@@ -6,6 +6,7 @@ const { translate } = require("./services/translator");
 const { translateWordInBrowser } = require("./services/tureng-browser");
 const { captureSelectedText } = require("./services/selection-capture");
 const { DEFAULT_SETTINGS, mergeSettings, normalizeShortcut } = require("./services/settings");
+const { HISTORY_LIMIT, addToHistory, removeFromHistory } = require("./services/history");
 
 // Some Windows environments cannot start Electron's GPU child process. Use
 // Chromium's software rendering so the desktop app can start reliably.
@@ -33,7 +34,7 @@ async function readHistory() {
 
 async function saveHistory(items) {
   await fs.mkdir(path.dirname(historyPath()), { recursive: true });
-  await fs.writeFile(historyPath(), JSON.stringify(items.slice(0, 500), null, 2));
+  await fs.writeFile(historyPath(), JSON.stringify(items.slice(0, HISTORY_LIMIT), null, 2));
 }
 
 async function readSettings() {
@@ -100,7 +101,7 @@ async function performTranslation(text) {
     createdAt: new Date().toISOString()
   };
   const history = await readHistory();
-  await saveHistory([item, ...history.filter((old) => old.source !== clean)]);
+  await saveHistory(addToHistory(history, item));
   return item;
 }
 
@@ -136,6 +137,11 @@ app.on("activate", () => { if (BrowserWindow.getAllWindows().length === 0) creat
 
 ipcMain.handle("translate", (_event, text) => performTranslation(text));
 ipcMain.handle("history:get", () => readHistory());
+ipcMain.handle("history:delete", async (_event, id) => {
+  const next = removeFromHistory(await readHistory(), id);
+  await saveHistory(next);
+  return next;
+});
 ipcMain.handle("history:clear", async () => { await saveHistory([]); return []; });
 ipcMain.handle("clipboard:read", () => clipboard.readText());
 ipcMain.handle("clipboard:write", (_event, text) => clipboard.writeText(String(text || "")));

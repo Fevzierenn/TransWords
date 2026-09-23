@@ -3,6 +3,7 @@ const { contextBridge, ipcRenderer } = require("electron");
 contextBridge.exposeInMainWorld("transwords", {
   translate: (text) => ipcRenderer.invoke("translate", text),
   getHistory: () => ipcRenderer.invoke("history:get"),
+  deleteHistoryItem: (id) => ipcRenderer.invoke("history:delete", id),
   clearHistory: () => ipcRenderer.invoke("history:clear"),
   readClipboard: () => ipcRenderer.invoke("clipboard:read"),
   copy: (text) => ipcRenderer.invoke("clipboard:write", text),
