@@ -9,7 +9,7 @@
     "start": "electron .",
     "build:win": "node scripts/create-app-icon.js && node scripts/package-win.js",
     "test": "node --test",
-    "lint": "node --check src/main.js && node --check src/preload.js && node --check src/services/translator.js && node --check src/services/tureng-browser.js && node --check src/services/selection-capture.js && node --check src/services/settings.js && node --check src/renderer/app.js && node --check scripts/create-app-icon.js && node --check scripts/package-win.js"
+    "lint": "node --check src/main.js && node --check src/preload.js && node --check src/services/translator.js && node --check src/services/tureng-browser.js && node --check src/services/selection-capture.js && node --check src/services/settings.js && node --check src/services/history.js && node --check src/renderer/format.js && node --check src/renderer/app.js && node --check scripts/create-app-icon.js && node --check scripts/package-win.js && node --check scripts/ui-smoke.js"
   },
   "devDependencies": {
     "@electron/packager": "^20.3.0",
