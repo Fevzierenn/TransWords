@@ -1,4 +1,4 @@
-const { app, BrowserWindow, clipboard, globalShortcut, ipcMain, nativeImage, net, shell } = require("electron");
+const { app, BrowserWindow, clipboard, globalShortcut, ipcMain, nativeImage, nativeTheme, net, shell } = require("electron");
 const fsSync = require("node:fs");
 const fs = require("node:fs/promises");
 const path = require("node:path");
@@ -107,11 +107,11 @@ async function performTranslation(text) {
 
 function createWindow() {
   mainWindow = new BrowserWindow({
-    width: 840,
+    width: 1000,
     height: 680,
-    minWidth: 620,
-    minHeight: 500,
-    backgroundColor: "#f7f5ef",
+    minWidth: 560,
+    minHeight: 520,
+    backgroundColor: nativeTheme.shouldUseDarkColors ? "#151515" : "#f4f1e8",
     icon: nativeImage.createFromBuffer(fsSync.readFileSync(path.join(__dirname, "..", "media", "app-icon.png"))),
     title: "TransWords",
     webPreferences: {

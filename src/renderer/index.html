@@ -8,68 +8,179 @@
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <main>
-    <header>
-      <div><p class="eyebrow">ENGLISH ↔ TURKISH</p><h1>TransWords</h1></div>
-      <div class="header-actions">
-        <button id="settingsToggle" class="theme-toggle" type="button" aria-label="Open settings" title="Settings">⚙</button>
-        <button id="themeToggle" class="theme-toggle" type="button" aria-label="Switch to dark theme" title="Switch theme">
-          <span id="themeIcon" aria-hidden="true">☾</span>
+  <svg class="sprite" aria-hidden="true">
+    <symbol id="i-translate" viewBox="0 0 24 24"><path d="M4 5h8M8 3v2M5 9c1.5 3 4 5 7 6M11 5c-1 4-3.5 7-7 9M13 21l4-9 4 9M14.5 18h5"/></symbol>
+    <symbol id="i-history" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7L3 8M3 3v5h5M12 7v5l3 2"/></symbol>
+    <symbol id="i-settings" viewBox="0 0 24 24"><path d="M4 6h9M17 6h3M4 12h3M11 12h9M4 18h11M19 18h1"/><circle cx="15" cy="6" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="17" cy="18" r="2"/></symbol>
+    <symbol id="i-moon" viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></symbol>
+    <symbol id="i-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></symbol>
+    <symbol id="i-paste" viewBox="0 0 24 24"><path d="M9 3h6v4H9zM9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+    <symbol id="i-external" viewBox="0 0 24 24"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+  </svg>
+
+  <div class="app">
+    <header class="topbar">
+      <div class="brand">
+        <img src="../../media/app-icon.png" alt="">
+        <div><strong>TransWords</strong><span>English ⇄ Turkish</span></div>
+      </div>
+      <nav class="tabs" role="tablist" aria-label="Views">
+        <button id="translatorTab" class="tab active" type="button" role="tab" aria-selected="true" data-view="translator">
+          <svg class="icon"><use href="#i-translate"/></svg>Translate
         </button>
-        <button id="historyToggle" class="ghost">History <span id="historyCount">0</span></button>
+        <button id="historyToggle" class="tab" type="button" role="tab" aria-selected="false" data-view="history">
+          <svg class="icon"><use href="#i-history"/></svg>History<span id="historyCount" class="count">0</span>
+        </button>
+      </nav>
+      <div class="toolbar">
+        <button id="themeToggle" class="icon-btn" type="button" aria-label="Switch to dark theme" title="Switch theme">
+          <svg class="icon"><use id="themeIcon" href="#i-moon"/></svg>
+        </button>
+        <button id="settingsToggle" class="icon-btn" type="button" aria-label="Open settings" title="Settings">
+          <svg class="icon"><use href="#i-settings"/></svg>
+        </button>
       </div>
     </header>
 
-    <section id="translatorView">
-      <label for="source">What would you like to translate?</label>
-      <div class="input-wrap">
-        <textarea id="source" rows="4" autofocus placeholder="Type or paste a word or sentence…"></textarea>
-        <button id="paste" class="icon-button" title="Paste from clipboard">Paste</button>
-      </div>
-      <div class="actions">
-        <span class="hint">Copy text, then press <kbd>Ctrl</kbd> + <kbd>T</kbd></span>
-        <button id="translate" class="primary">Translate</button>
-      </div>
-      <p id="status" role="status"></p>
-      <div id="loading" class="loading hidden" role="status" aria-live="polite">
-        <img id="loadingAnimation" src="../../media/basketball_player.gif" alt="Translating animation">
-        <div><strong>Translating</strong><span>Please wait a moment…</span></div>
-      </div>
-      <article id="result" class="result hidden">
-        <div class="result-head"><span id="provider"></span><div><button id="turengLink" class="tureng-link hidden">View on Tureng</button> <button id="copyResult" class="ghost">Copy</button></div></div>
-        <div id="translations"></div>
-      </article>
-    </section>
+    <main>
+      <section id="translatorView" class="view translator-view">
+        <div class="panes">
+          <div class="pane source-pane">
+            <div class="pane-head">
+              <label for="source" class="pane-title">Text</label>
+              <span class="chip">Auto-detect</span>
+              <button id="clearSource" class="icon-btn small hidden" type="button" aria-label="Clear text" title="Clear text">
+                <svg class="icon"><use href="#i-x"/></svg>
+              </button>
+            </div>
+            <textarea id="source" autofocus spellcheck="false" placeholder="Type or paste a word or sentence…"></textarea>
+            <div class="pane-foot">
+              <span id="charCount" class="muted">0 characters</span>
+              <div class="foot-actions">
+                <button id="paste" class="btn secondary" type="button" title="Paste from clipboard and translate">
+                  <svg class="icon"><use href="#i-paste"/></svg>Paste
+                </button>
+                <button id="translate" class="btn primary" type="button" title="Translate (Enter)">
+                  Translate<svg class="icon"><use href="#i-arrow"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
 
-    <section id="historyView" class="hidden">
-      <div class="section-head"><div><p class="eyebrow">SAVED LOCALLY</p><h2>Translation history</h2></div><button id="clearHistory" class="danger">Clear all</button></div>
-      <div id="historyList"></div>
-    </section>
-  </main>
+          <div class="pane result-pane" aria-live="polite">
+            <div class="pane-head">
+              <span class="pane-title">Translation</span>
+              <span id="provider" class="chip accent hidden"></span>
+            </div>
+            <div class="pane-body">
+              <div id="emptyState" class="state">
+                <svg class="state-icon"><use href="#i-translate"/></svg>
+                <strong>Your translation will appear here</strong>
+                <span>Words are looked up in Tureng, sentences in Google Translate.</span>
+              </div>
+              <div id="loading" class="state hidden" role="status">
+                <img id="loadingAnimation" src="../../media/basketball_player.gif" alt="">
+                <strong>Translating…</strong>
+              </div>
+              <div id="errorState" class="state error hidden" role="alert">
+                <svg class="state-icon"><use href="#i-alert"/></svg>
+                <strong>Translation failed</strong>
+                <span id="status"></span>
+                <button id="retry" class="btn secondary" type="button">Try again</button>
+              </div>
+              <div id="result" class="hidden">
+                <p id="warning" class="notice hidden">
+                  <svg class="icon"><use href="#i-alert"/></svg>Tureng could not be reached — showing a Google Translate result instead.
+                </p>
+                <div id="translations"></div>
+              </div>
+            </div>
+            <div id="resultActions" class="pane-foot hidden">
+              <button id="turengLink" class="btn link hidden" type="button">
+                View on Tureng<svg class="icon"><use href="#i-external"/></svg>
+              </button>
+              <button id="copyResult" class="btn secondary" type="button">
+                <svg class="icon"><use href="#i-copy"/></svg>Copy
+              </button>
+            </div>
+          </div>
+        </div>
+        <p class="tip">Select text in any app and press <span id="shortcutTip" class="keys"></span> to translate it instantly. <kbd>Shift</kbd>+<kbd>Enter</kbd> adds a new line.</p>
+      </section>
 
-  <dialog id="settingsDialog">
-    <form id="settingsForm" method="dialog">
-      <div class="settings-head">
-        <div><p class="eyebrow">PERSONALIZE</p><h2>Settings</h2></div>
-        <button id="closeSettings" class="close-button" type="button" aria-label="Close settings">×</button>
+      <section id="historyView" class="view history-view hidden">
+        <div class="history-head">
+          <div class="search">
+            <svg class="icon"><use href="#i-search"/></svg>
+            <input id="historySearch" type="search" placeholder="Search your translations…" aria-label="Search history">
+          </div>
+          <button id="clearHistory" class="btn danger" type="button">
+            <svg class="icon"><use href="#i-trash"/></svg>Clear all
+          </button>
+        </div>
+        <ul id="historyList" class="history-list"></ul>
+      </section>
+    </main>
+  </div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <dialog id="confirmDialog" class="confirm">
+    <form method="dialog">
+      <h2>Clear all history?</h2>
+      <p>This removes every saved translation from this computer. It cannot be undone.</p>
+      <div class="dialog-actions">
+        <button value="cancel" class="btn secondary">Cancel</button>
+        <button value="confirm" class="btn danger solid">Clear all</button>
       </div>
-
-      <label class="setting-row" for="fontSelect"><span><strong>Application font</strong><small>Used throughout the input, output, and interface.</small></span>
-        <select id="fontSelect"><option value="default">Default</option><option value="sans">Sans serif</option><option value="arial">Arial</option></select>
-      </label>
-      <label class="setting-row" for="shortcutInput"><span><strong>Selection shortcut</strong><small>Click the field, then press your preferred combination.</small></span>
-        <input id="shortcutInput" class="shortcut-input" readonly value="Ctrl+T">
-      </label>
-
-      <div class="palette-head">
-        <strong>Theme colors</strong>
-        <div class="theme-tabs" role="tablist"><button type="button" class="theme-tab active" data-palette="light">Light</button><button type="button" class="theme-tab" data-palette="dark">Dark</button></div>
-      </div>
-      <div id="colorSettings" class="color-grid"></div>
-      <p id="settingsStatus" class="settings-status" role="status"></p>
-      <div class="settings-actions"><button id="resetSettings" type="button" class="ghost">Restore defaults</button><button id="saveSettings" type="submit" class="primary">Save settings</button></div>
     </form>
   </dialog>
+
+  <dialog id="settingsDialog" class="sheet">
+    <form id="settingsForm" method="dialog">
+      <div class="sheet-head">
+        <h2>Settings</h2>
+        <button id="closeSettings" class="icon-btn" type="button" aria-label="Close settings" title="Close">
+          <svg class="icon"><use href="#i-x"/></svg>
+        </button>
+      </div>
+
+      <div class="sheet-body">
+        <h3>General</h3>
+        <div class="setting-group">
+          <label class="setting-row" for="shortcutInput">
+            <span><strong>Selection shortcut</strong><small>Click the field, then press a new key combination.</small></span>
+            <input id="shortcutInput" class="shortcut-input" readonly value="Ctrl+T">
+          </label>
+          <label class="setting-row" for="fontSelect">
+            <span><strong>Font</strong><small>Used for the whole interface.</small></span>
+            <select id="fontSelect"><option value="default">Default</option><option value="sans">Sans serif</option><option value="arial">Arial</option></select>
+          </label>
+        </div>
+
+        <div class="palette-head">
+          <h3>Colors</h3>
+          <div class="segmented" role="tablist"><button type="button" class="theme-tab active" data-palette="light">Light</button><button type="button" class="theme-tab" data-palette="dark">Dark</button></div>
+        </div>
+        <div id="colorSettings" class="color-grid"></div>
+      </div>
+
+      <div class="sheet-foot">
+        <button id="resetSettings" type="button" class="btn link">Restore defaults</button>
+        <p id="settingsStatus" class="settings-status" role="status"></p>
+        <button id="cancelSettings" type="button" class="btn secondary">Cancel</button>
+        <button id="saveSettings" type="submit" class="btn primary">Save</button>
+      </div>
+    </form>
+  </dialog>
+  <script src="format.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
