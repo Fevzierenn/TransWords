@@ -3,19 +3,24 @@
 const { app, BrowserWindow, ipcMain } = require("electron");
 const fs = require("node:fs");
 const path = require("node:path");
+const os = require("node:os");
 const { DEFAULT_SETTINGS } = require("../src/services/settings");
+const { registerFlashcards } = require("../src/services/flashcards-ipc");
 
 const outputDir = path.join(__dirname, "ui-smoke-output");
 const wait = (milliseconds) => new Promise((resolve) => setTimeout(resolve, milliseconds));
 const minutesAgo = (minutes) => new Date(Date.now() - minutes * 60000).toISOString();
 
 let history = [
-  { id: "1", source: "book", provider: "Tureng", results: ["book — kitap", "book — defter", "book — rezervasyon yapmak"], turengUrl: "https://tureng.com/tr/turkce-ingilizce/book", createdAt: minutesAgo(3) },
+  { id: "1", source: "book", provider: "Tureng", results: ["book i. — kitap", "book i. — defter", "book f. — rezervasyon yapmak"], turengUrl: "https://tureng.com/tr/turkce-ingilizce/book", createdAt: minutesAgo(3) },
   { id: "2", source: "The weather is lovely today.", provider: "Google Translate", results: ["Bugün hava çok güzel."], createdAt: minutesAgo(90) },
-  { id: "3", source: "güzel", provider: "Tureng", results: ["güzel — beautiful", "güzel — nice", "güzel — pretty"], turengUrl: "https://tureng.com/tr/turkce-ingilizce/g%C3%BCzel", createdAt: minutesAgo(60 * 26) }
+  { id: "3", source: "güzel", provider: "Tureng", results: ["güzel — beautiful s.", "güzel — nice s.", "güzel — pretty s."], turengUrl: "https://tureng.com/tr/turkce-ingilizce/g%C3%BCzel", createdAt: minutesAgo(60 * 26) }
 ];
 
 ipcMain.handle("history:get", () => history);
+// Real flashcard logic against the mock history; progress goes to a throwaway temp folder.
+const flashcardsDir = fs.mkdtempSync(path.join(os.tmpdir(), "transwords-smoke-"));
+registerFlashcards({ ipcMain, readHistory: async () => history, dataDir: () => flashcardsDir, getSettings: () => DEFAULT_SETTINGS, fetchFn: async () => ({ ok: true, json: async () => [[["(offline)", ""]], null, "en"] }) });
 ipcMain.handle("history:delete", (_event, id) => (history = history.filter((item) => item.id !== id)));
 ipcMain.handle("history:clear", () => (history = []));
 ipcMain.handle("clipboard:read", () => "");
@@ -85,12 +90,29 @@ app.whenReady().then(async () => {
     await run("document.querySelector('#settingsToggle').click()");
     await shot(`${theme}-settings`);
     await run("document.querySelector('#closeSettings').click()");
+    await run("document.querySelector('#flashcardsTab').click(); document.querySelector('#fcModes [data-mode=mixed]').click()");
+    await shot(`${theme}-flashcards-question`);
+    await run("document.querySelector('#fcAnswer').value = 'wrong guess'; document.querySelector('#fcSubmit').click()");
+    await shot(`${theme}-flashcards-wrong`);
+    await run("document.querySelector('#fcSubmit').click()");
+    await wait(300);
+    const answer = await run(`(() => {
+      const prompt = document.querySelector('#fcPrompt').textContent;
+      return { book: 'kitap', güzel: 'beautiful', kitap: 'book', beautiful: 'guzel' }[prompt] || 'defter';
+    })()`);
+    await run(`document.querySelector('#fcAnswer').value = ${JSON.stringify(answer)}; document.querySelector('#fcSubmit').click()`);
+    await shot(`${theme}-flashcards-feedback`);
+    fs.rmSync(path.join(flashcardsDir, "flashcards.json"), { force: true });
     fs.writeFileSync(path.join(outputDir, "result.json"), JSON.stringify({ enterPreventedDefault: !enterAllowed }, null, 2));
   }
 
   await run("document.querySelector('#translatorTab').click()");
   await translate("hello");
   await wait(1500);
+  history = [];
+  await run("document.querySelector('#flashcardsTab').click(); document.querySelector('#fcModes [data-mode=mixed]').click()");
+  await shot("flashcards-empty");
+  await run("document.querySelector('#translatorTab').click()");
   window.setSize(560, 760);
   await shot("narrow");
   app.exit(0);
